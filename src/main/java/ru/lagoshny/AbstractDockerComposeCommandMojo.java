@@ -106,12 +106,14 @@ abstract class AbstractDockerComposeCommandMojo extends AbstractMojo {
         if (StringUtils.isNotEmpty(this.dockerComposeFile)) {
             String composeFilePath = Paths.get(this.dockerComposeFile).toString();
             if (StringUtils.isNotEmpty(composeFilePath)) {
+                getLog().info(String.format("Running with custom location docker-compose file: %s", composeFilePath));
                 cmd.add("-f");
                 cmd.add(composeFilePath);
             }
         }
 
         if (verbose) {
+            getLog().info("Running with --verbose flag");
             cmd.add("--verbose");
         }
 
