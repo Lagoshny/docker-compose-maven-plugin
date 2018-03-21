@@ -32,10 +32,10 @@ abstract class AbstractDockerComposeCommandMojo extends AbstractMojo {
     protected boolean detachedMode;
 
     /**
-     * Set path to docker compose configuration file
+     * Set path to docker compose configuration files
      */
     @Parameter()
-    private String dockerComposeFile;
+    private String[] dockerComposeFiles;
 
     /**
      * If true, then for docker-compose command will be add --verbose flag
@@ -103,12 +103,14 @@ abstract class AbstractDockerComposeCommandMojo extends AbstractMojo {
         List<String> cmd = new ArrayList<>();
         cmd.add("docker-compose");
 
-        if (StringUtils.isNotEmpty(this.dockerComposeFile)) {
-            String composeFilePath = Paths.get(this.dockerComposeFile).toString();
-            if (StringUtils.isNotEmpty(composeFilePath)) {
-                getLog().info(String.format("Running with custom location docker-compose file: %s", composeFilePath));
-                cmd.add("-f");
-                cmd.add(composeFilePath);
+        if (this.dockerComposeFiles.length > 0) {
+            for (String composeFile : this.dockerComposeFiles) {
+                String composeFilePath = Paths.get(composeFile).toString();
+                if (StringUtils.isNotEmpty(composeFilePath)) {
+                    getLog().info(String.format("Running with custom location docker-compose file: %s", composeFilePath));
+                    cmd.add("-f");
+                    cmd.add(composeFilePath);
+                }
             }
         }
 
@@ -125,8 +127,8 @@ abstract class AbstractDockerComposeCommandMojo extends AbstractMojo {
         return detachedMode;
     }
 
-    public String getDockerComposeFile() {
-        return dockerComposeFile;
+    public String[] getDockerComposeFiles() {
+        return dockerComposeFiles;
     }
 
     public boolean isVerbose() {
