@@ -4,7 +4,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.BufferedReader;
@@ -16,7 +15,7 @@ import java.util.List;
 
 /**
  * Abstract class for docker-compose commands
- *
+ * <p>
  * Date: 07.02.18
  * Time: 14:32
  *
@@ -24,6 +23,8 @@ import java.util.List;
  * @version 1.0
  */
 abstract class AbstractDockerComposeCommandMojo extends AbstractMojo {
+
+    private static final String DEFAULT_PROJECT_NAME = "default";
 
     /**
      * If true, then for docker-compose command will be add -d flag
@@ -34,7 +35,7 @@ abstract class AbstractDockerComposeCommandMojo extends AbstractMojo {
     /**
      * Set path to docker compose configuration files
      */
-    @Parameter()
+    @Parameter
     private String[] dockerComposeFiles;
 
     /**
@@ -52,28 +53,34 @@ abstract class AbstractDockerComposeCommandMojo extends AbstractMojo {
     /**
      * The name of the application for which the docker-compose is run
      */
-    @Parameter()
+    @Parameter
     private String applicationName;
 
     /**
      * Project root folder
      */
-    @Parameter()
+    @Parameter
     private String projectDir;
 
     /**
-     * The name of the container for which the docker-compose is run
+     * The name of the service for which the docker-compose is run
      */
-    @Parameter()
-    protected String containerName;
+    @Parameter
+    protected String serviceName;
 
-    void execute(List<String> args) throws MojoExecutionException, MojoFailureException {
+    /**
+     * Set project name
+     */
+    @Parameter
+    private String projectName;
 
-        if (StringUtils.isNotEmpty(containerName)) {
-            args.add(containerName);
+    void execute(List<String> args) throws MojoExecutionException {
+
+        if (StringUtils.isNotEmpty(serviceName)) {
+            args.add(serviceName);
         }
 
-        List<String> cmdCommand =  buildCmdCommand(args);
+        List<String> cmdCommand = buildCmdCommand(args);
         ProcessBuilder processBuilder = new ProcessBuilder(cmdCommand).inheritIO();
 
         try {
@@ -92,7 +99,7 @@ abstract class AbstractDockerComposeCommandMojo extends AbstractMojo {
             }
 
         } catch (Exception e) {
-            throw new MojoExecutionException(e.getMessage());
+            throw new MojoExecutionException(e.getMessage(), e);
         }
 
     }
@@ -102,24 +109,33 @@ abstract class AbstractDockerComposeCommandMojo extends AbstractMojo {
 
         List<String> cmd = new ArrayList<>();
         cmd.add("docker-compose");
-
-        if (this.dockerComposeFiles.length > 0) {
-            for (String composeFile : this.dockerComposeFiles) {
+        if (dockerComposeFiles != null && dockerComposeFiles.length > 0) {
+            for (String composeFile : dockerComposeFiles) {
                 String composeFilePath = Paths.get(composeFile).toString();
                 if (StringUtils.isNotEmpty(composeFilePath)) {
-                    getLog().info(String.format("Running with custom location docker-compose file: %s", composeFilePath));
+                    getLog().debug(String.format("Running with custom location docker-compose file: %s", composeFilePath));
                     cmd.add("-f");
                     cmd.add(composeFilePath);
                 }
             }
         }
 
+        String projectNameParam = (StringUtils.isNotBlank(projectName))
+                ? projectName
+                : DEFAULT_PROJECT_NAME;
+        cmd.add("-p");
+        cmd.add(projectNameParam);
+        getLog().debug(String.format("Use project name %s", projectNameParam));
+
         if (verbose) {
-            getLog().info("Running with --verbose flag");
+            getLog().debug("Running with --verbose flag");
             cmd.add("--verbose");
         }
 
         cmd.addAll(args);
+
+        getLog().debug(cmd.toString());
+
         return cmd;
     }
 
@@ -147,7 +163,7 @@ abstract class AbstractDockerComposeCommandMojo extends AbstractMojo {
         return projectDir;
     }
 
-    public String getContainerName() {
-        return containerName;
+    public String getServiceName() {
+        return serviceName;
     }
 }

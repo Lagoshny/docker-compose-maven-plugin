@@ -31,12 +31,12 @@ public class DockerComposeCommandUpMojo extends AbstractDockerComposeCommandMojo
     public void execute() throws MojoExecutionException, MojoFailureException {
 
         if (skip) {
-            getLog().info(String.format("Skip execution %s command for container: %s", DockerComposeCommand.UP, containerName));
+            getLog().info(String.format("Skip execution %s command for service: %s", DockerComposeCommand.UP, serviceName));
             return;
         }
 
-        StringBuilder logBuilder = new StringBuilder(String.format("Running %s command for %s container",
-                DockerComposeCommand.UP, containerName));
+        StringBuilder logBuilder = new StringBuilder(String.format("Running %s command for %s service",
+                DockerComposeCommand.UP, serviceName));
 
         List<String> args = new ArrayList<>();
         args.add(DockerComposeCommand.UP.getValue());

@@ -31,12 +31,12 @@ public class DockerComposeCommandBuildMojo extends AbstractDockerComposeCommandM
     public void execute() throws MojoExecutionException, MojoFailureException {
 
         if (skip) {
-            getLog().info(String.format("Skip execution %s command for container: %s", DockerComposeCommand.BUILD, containerName));
+            getLog().info(String.format("Skip execution %s command for service: %s", DockerComposeCommand.BUILD, serviceName));
             return;
         }
 
-        StringBuilder logBuilder = new StringBuilder(String.format("Running %s command for %s container.",
-                DockerComposeCommand.BUILD, containerName));
+        StringBuilder logBuilder = new StringBuilder(String.format("Running %s command for %s service.",
+                DockerComposeCommand.BUILD, serviceName));
 
         List<String> args = new ArrayList<>();
         args.add(DockerComposeCommand.BUILD.getValue());

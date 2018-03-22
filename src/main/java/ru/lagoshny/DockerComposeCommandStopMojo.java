@@ -24,13 +24,14 @@ public class DockerComposeCommandStopMojo extends AbstractDockerComposeCommandMo
     public void execute() throws MojoExecutionException, MojoFailureException {
 
         if (skip) {
-            getLog().info(String.format("Skip execution %s command for container: %s", DockerComposeCommand.STOP, containerName));
+            getLog().info(String.format("Skip execution %s command for service: %s", DockerComposeCommand.STOP, serviceName));
             return;
         }
 
-        getLog().info(String.format("Running %s command for %s container.", DockerComposeCommand.STOP, containerName));
+        getLog().info(String.format("Running %s command for %s service.", DockerComposeCommand.STOP, serviceName));
 
         List<String> args = new ArrayList<>();
+
         args.add(DockerComposeCommand.STOP.getValue());
 
         super.execute(args);
