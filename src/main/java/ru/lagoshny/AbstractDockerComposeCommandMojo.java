@@ -12,6 +12,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Abstract class for docker-compose commands
@@ -74,6 +75,12 @@ abstract class AbstractDockerComposeCommandMojo extends AbstractMojo {
     @Parameter
     private String projectName;
 
+    /**
+     * List of environment variables
+     */
+    @Parameter
+    private Map<String, String> environmentVariables;
+
     void execute(List<String> args) throws MojoExecutionException {
 
         if (StringUtils.isNotEmpty(serviceName)) {
@@ -82,6 +89,10 @@ abstract class AbstractDockerComposeCommandMojo extends AbstractMojo {
 
         List<String> cmdCommand = buildCmdCommand(args);
         ProcessBuilder processBuilder = new ProcessBuilder(cmdCommand).inheritIO();
+
+        if (environmentVariables != null) {
+            processBuilder.environment().putAll(environmentVariables);
+        }
 
         try {
             Process process = processBuilder.start();
